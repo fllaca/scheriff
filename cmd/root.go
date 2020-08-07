@@ -10,6 +10,8 @@ import (
 	"github.com/fllaca/okay/pkg/utils"
 	"github.com/fllaca/okay/pkg/validate"
 	"github.com/spf13/cobra"
+
+	"github.com/gookit/color"
 )
 
 var (
@@ -46,10 +48,12 @@ func runValidate(filenames []string, schema string) {
 	opeanApi2SpecsBytes, err := ioutil.ReadFile(openApiSchema)
 	if err != nil {
 		fmt.Printf("Error loading specs from %s: %s\n", openApiSchema, err)
+		return
 	}
 	validator, err := validate.NewOpenApi2Validator(opeanApi2SpecsBytes)
 	if err != nil {
 		fmt.Printf("Error loading specs from %s: %s\n", openApiSchema, err)
+		return
 	}
 	// TODO implement extraSchemas from CRDs
 
@@ -75,7 +79,7 @@ func runValidate(filenames []string, schema string) {
 				}
 				result := validator.Validate(k8sResource)
 				// TODO provide documentIndex in output
-				fmt.Printf("\t - %s, %s (%s): %s\n", result.Severity, utils.JoinNotEmptyStrings("/", result.Namespace, result.Name), result.Kind, result.Message)
+				outputResult(result)
 			}
 			return nil
 
@@ -83,5 +87,25 @@ func runValidate(filenames []string, schema string) {
 		if err != nil {
 			fmt.Printf("Error while validating %s: %s\n", filename, err)
 		}
+	}
+}
+
+func outputResult(result validate.ValidationResult) {
+	fmt.Printf("\t - %s, %s (%s): %s\n", colorSeverity(result.Severity), utils.JoinNotEmptyStrings("/", result.Namespace, result.Name), result.Kind, result.Message)
+}
+
+func colorSeverity(severity validate.Severity) string {
+	red := color.FgRed.Render
+	green := color.FgGreen.Render
+	yellow := color.FgYellow.Render
+	switch severity {
+	case validate.SeverityError:
+		return red(severity)
+	case validate.SeverityWarning:
+		return yellow(severity)
+	case validate.SeverityOK:
+		return green(severity)
+	default:
+		return (string)(severity)
 	}
 }

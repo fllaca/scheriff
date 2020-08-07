@@ -4,6 +4,7 @@ go 1.14
 
 require (
 	github.com/getkin/kin-openapi v0.19.0
+	github.com/gookit/color v1.2.7
 	github.com/spf13/cobra v0.0.5
 	github.com/stretchr/testify v1.5.1
 	gopkg.in/yaml.v2 v2.3.0
