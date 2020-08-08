@@ -1,12 +1,10 @@
 package cmd
 
 import (
-	"bytes"
 	"fmt"
 	"io/ioutil"
 
 	"github.com/fllaca/okay/pkg/fs"
-	"github.com/fllaca/okay/pkg/kubernetes"
 	"github.com/fllaca/okay/pkg/utils"
 	"github.com/fllaca/okay/pkg/validate"
 	"github.com/spf13/cobra"
@@ -50,12 +48,14 @@ func runValidate(filenames []string, schema string) {
 		fmt.Printf("Error loading specs from %s: %s\n", openApiSchema, err)
 		return
 	}
-	validator, err := validate.NewOpenApi2Validator(opeanApi2SpecsBytes)
+	resourceValidator, err := validate.NewOpenApi2Validator(opeanApi2SpecsBytes)
 	if err != nil {
 		fmt.Printf("Error loading specs from %s: %s\n", openApiSchema, err)
 		return
 	}
 	// TODO implement extraSchemas from CRDs
+
+	fileValidator := validate.NewYamlFileValidator(resourceValidator)
 
 	for _, filename := range filenames {
 		err := fs.ApplyToPathWithFilter(filename, recursive, func(file string) error {
@@ -67,20 +67,9 @@ func runValidate(filenames []string, schema string) {
 				return nil
 			}
 
-			documentsBytes := bytes.Split(fileBytes, []byte("\n---\n"))
-			for docIndex, documentBytes := range documentsBytes {
-				k8sResource, err := kubernetes.ParseResource(documentBytes)
-				if err != nil {
-					fmt.Printf("\t - Error parsing k8s resource from document %d of %s: %s\n", docIndex, file, err)
-					continue
-				}
-				if len(k8sResource) == 0 {
-					continue
-				}
-				result := validator.Validate(k8sResource)
-				// TODO provide documentIndex in output
-				outputResult(result)
-			}
+			validationResults := fileValidator.Validate(fileBytes)
+			outputResult(validationResults)
+
 			return nil
 
 		}, fs.IsYamlFilter)
@@ -90,8 +79,10 @@ func runValidate(filenames []string, schema string) {
 	}
 }
 
-func outputResult(result validate.ValidationResult) {
-	fmt.Printf("\t - %s, %s (%s): %s\n", colorSeverity(result.Severity), utils.JoinNotEmptyStrings("/", result.Namespace, result.Name), result.Kind, result.Message)
+func outputResult(results []validate.ValidationResult) {
+	for _, result := range results {
+		fmt.Printf("\t - %s, %s (%s): %s\n", colorSeverity(result.Severity), utils.JoinNotEmptyStrings("/", result.Namespace, result.Name), result.Kind, result.Message)
+	}
 }
 
 func colorSeverity(severity validate.Severity) string {

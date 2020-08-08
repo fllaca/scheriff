@@ -8,7 +8,7 @@ const (
 	SeverityOK      Severity = "OK"
 )
 
-type Validator interface {
+type ResourceValidator interface {
 	Validate(resource map[string]interface{}) ValidationResult
 }
 
@@ -23,4 +23,8 @@ type ValidationResult struct {
 	Namespace string
 	// Kind of the validated resourcce
 	Kind string
+}
+
+type FileValidator interface {
+	Validate(data []byte) []ValidationResult
 }
