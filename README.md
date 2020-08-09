@@ -14,10 +14,12 @@ Usage:
   okay [flags]
 
 Flags:
-  -f, --filename stringArray   that contains the configuration to be validated (default [.])
+  -c, --crd stringArray        files or directories that contain CustomResourceDefinitions to be used for validation
+  -f, --filename stringArray   (required) file or directories that contain the configuration to be validated
   -h, --help                   help for okay
-  -R, --recursive              Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.
-  -s, --schema string          Kubernetes OpenAPI schema
+  -R, --recursive              process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.
+  -s, --schema string          (required) Kubernetes OpenAPI V2 schema to validate against
+
 ```
 
 
