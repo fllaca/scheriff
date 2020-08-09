@@ -19,3 +19,6 @@ Flags:
   -R, --recursive              Process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.
   -s, --schema string          Kubernetes OpenAPI schema
 ```
+
+
+![Image](img/results.png)

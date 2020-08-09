@@ -9,6 +9,9 @@ import (
 	"github.com/getkin/kin-openapi/openapi2"
 	"github.com/getkin/kin-openapi/openapi2conv"
 	"github.com/getkin/kin-openapi/openapi3"
+
+	apiextensionsv1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1"
+	apiextensionsv1beta1 "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 )
 
 // extPropsGroupVersionKind holds the data inside the "x-kubernetes-group-version-kind" Extension Properties of Kubernetes schemas
@@ -131,4 +134,89 @@ func getK8sGroupVersionKind(schema *openapi3.SchemaRef) ([]extPropsGroupVersionK
 		return kindDefs, nil
 	}
 	return kindDefs, nil
+}
+
+const (
+	crdv1beta1ApiVersionKind = "apiextensions.k8s.io/v1beta1/CustomResourceDefinition"
+	crdv1ApiVersionKind      = "apiextensions.k8s.io/v1/CustomResourceDefinition"
+)
+
+// AddCrdSchemas adds additional schemas from a CustomResourceDefinition that can be used to validate other resources
+// TODO:  <09-08-20, @fllaca> // more generic way of handling CRDs? :thinking:
+func (oeValidator OpenApiValidator) AddCrdSchemas(crdResource kubernetes.Resource) error {
+	apiVersionKind := kubernetes.GetApiVersionKind(crdResource)
+	switch apiVersionKind {
+	case crdv1ApiVersionKind:
+		crdv1 := apiextensionsv1.CustomResourceDefinition{}
+		err := convertObject(crdResource, &crdv1)
+		if err != nil {
+			return err
+		}
+		for _, version := range crdv1.Spec.Versions {
+			schema, err := getSchema(version.Schema.OpenAPIV3Schema)
+			if err != nil {
+				return err
+			}
+			kindDef := extPropsGroupVersionKind{
+				Group:   crdv1.Spec.Group,
+				Version: version.Name,
+				Kind:    crdv1.Spec.Names.Kind,
+			}
+			oeValidator.schemaCache[kindDef.String()] = schema
+		}
+	case crdv1beta1ApiVersionKind:
+		crdv1beta1 := apiextensionsv1beta1.CustomResourceDefinition{}
+		err := convertObject(crdResource, &crdv1beta1)
+		if err != nil {
+			return err
+		}
+		defaultSchema := openapi3.NewObjectSchema()
+		if crdv1beta1.Spec.Validation != nil && crdv1beta1.Spec.Validation.OpenAPIV3Schema != nil {
+			defaultSchema, err = getSchema(crdv1beta1.Spec.Validation.OpenAPIV3Schema)
+			if err != nil {
+				return err
+			}
+		}
+		for _, version := range crdv1beta1.Spec.Versions {
+			schema := defaultSchema
+			if version.Schema != nil && version.Schema.OpenAPIV3Schema != nil {
+				schema, err = getSchema(version.Schema.OpenAPIV3Schema)
+				if err != nil {
+					return err
+				}
+			}
+			kindDef := extPropsGroupVersionKind{
+				Group:   crdv1beta1.Spec.Group,
+				Version: version.Name,
+				Kind:    crdv1beta1.Spec.Names.Kind,
+			}
+			oeValidator.schemaCache[kindDef.String()] = schema
+		}
+	default:
+		return fmt.Errorf("Invalid CRD Kind: %s", apiVersionKind)
+	}
+	return nil
+}
+
+func (oeValidator OpenApiValidator) addSchemaToCache(group, apiVersion, kind string, schema *openapi3.Schema) {
+	key := utils.JoinNotEmptyStrings("/", group, apiVersion, kind)
+	oeValidator.schemaCache[key] = schema
+}
+
+func getSchema(jsonSchemaProps interface{}) (*openapi3.Schema, error) {
+	schema := openapi3.NewSchema()
+	return schema, convertObject(jsonSchemaProps, schema)
+}
+
+// convertObject transforms an object into another type by json marshaling/unmarshaling of its properties
+func convertObject(source interface{}, target interface{}) error {
+	jsonBytes, err := json.Marshal(source)
+	if err != nil {
+		return err
+	}
+	err = json.Unmarshal(jsonBytes, target)
+	if err != nil {
+		return err
+	}
+	return nil
 }
