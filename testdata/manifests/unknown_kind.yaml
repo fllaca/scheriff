@@ -1,7 +1,0 @@
-apiVersion: example.io/v1
-kind: UnknownCRD
-metadata:
-  name: example-unknown-kind
-  namespace: example
-spec:
-  someKey: someValue

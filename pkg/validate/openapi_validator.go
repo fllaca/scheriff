@@ -198,11 +198,6 @@ func (oeValidator OpenApiValidator) AddCrdSchemas(crdResource kubernetes.Resourc
 	return nil
 }
 
-func (oeValidator OpenApiValidator) addSchemaToCache(group, apiVersion, kind string, schema *openapi3.Schema) {
-	key := utils.JoinNotEmptyStrings("/", group, apiVersion, kind)
-	oeValidator.schemaCache[key] = schema
-}
-
 func getSchema(jsonSchemaProps interface{}) (*openapi3.Schema, error) {
 	schema := openapi3.NewSchema()
 	return schema, convertObject(jsonSchemaProps, schema)

@@ -3,6 +3,7 @@ package cmd
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
 
 	"github.com/fllaca/okay/pkg/fs"
 	"github.com/fllaca/okay/pkg/kubernetes"
@@ -19,8 +20,8 @@ var (
 		Short: "A Kubernetes manifests validator tool",
 		Long:  `A Kubernetes manifests validator tool`,
 		Run: func(cmd *cobra.Command, args []string) {
-			// TODO: calculate exit code
-			runValidate(filenames, openApiSchema, crds, recursive)
+			exitCode, _ := runValidate(filenames, openApiSchema, crds, recursive)
+			os.Exit(exitCode)
 		},
 	}
 	filenames     = make([]string, 0)
@@ -44,18 +45,20 @@ func Execute() error {
 	return rootCmd.Execute()
 }
 
-func runValidate(filenames []string, schema string, crds []string, recursive bool) {
+func runValidate(filenames []string, schema string, crds []string, recursive bool) (int, []validate.ValidationResult) {
+	totalResults := make([]validate.ValidationResult, 0)
 	fmt.Printf("Validating config in %s against schema in %s\n", utils.JoinNotEmptyStrings(", ", filenames...), openApiSchema)
+	exitCode := 0
 
-	opeanApi2SpecsBytes, err := ioutil.ReadFile(openApiSchema)
+	opeanApi2SpecsBytes, err := ioutil.ReadFile(schema)
 	if err != nil {
-		fmt.Printf("Error loading specs from %s: %s\n", openApiSchema, err)
-		return
+		fmt.Printf("Error loading specs from %s: %s\n", schema, err)
+		return 1, totalResults
 	}
 	resourceValidator, err := validate.NewOpenApi2Validator(opeanApi2SpecsBytes)
 	if err != nil {
 		fmt.Printf("Error loading specs from %s: %s\n", openApiSchema, err)
-		return
+		return 1, totalResults
 	}
 
 	for _, crd := range crds {
@@ -79,6 +82,7 @@ func runValidate(filenames []string, schema string, crds []string, recursive boo
 		}, fs.IsYamlFilter)
 		if err != nil {
 			fmt.Printf("Error loading CustomResourceDefinitions from %s: %s\n", crd, err)
+			// TODO: exit with error? log warning?
 		}
 	}
 
@@ -97,13 +101,19 @@ func runValidate(filenames []string, schema string, crds []string, recursive boo
 
 			validationResults := fileValidator.Validate(fileBytes)
 			outputResult(validationResults)
+			if containsError(validationResults) {
+				exitCode = 1
+			}
+			totalResults = append(totalResults, validationResults...)
 			return nil
 
 		}, fs.IsYamlFilter)
 		if err != nil {
 			fmt.Printf("Error while validating %s: %s\n", filename, err)
+			exitCode = 1
 		}
 	}
+	return exitCode, totalResults
 }
 
 func outputResult(results []validate.ValidationResult) {
@@ -111,6 +121,15 @@ func outputResult(results []validate.ValidationResult) {
 		fmt.Printf("\t - %s, %s (%s): %s\n", colorSeverity(result.Severity), utils.JoinNotEmptyStrings("/", result.Namespace, result.Name), result.Kind, result.Message)
 	}
 	fmt.Println()
+}
+
+func containsError(results []validate.ValidationResult) bool {
+	for _, result := range results {
+		if result.Severity == validate.SeverityError {
+			return true
+		}
+	}
+	return false
 }
 
 func colorSeverity(severity validate.Severity) string {

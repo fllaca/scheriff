@@ -1,0 +1,17 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: some-app-envoy
+  name: some-app-envoy
+  namespace: example
+spec:
+  ports:
+  - name: json-rpc-http
+    port: 8545
+    protocol: TCP
+    targetPort: 8545
+  selector:
+    app: some-app-envoy
+  sessionAffinity: None
