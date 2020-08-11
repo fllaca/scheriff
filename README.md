@@ -30,4 +30,4 @@ Flags:
 ```
 
 
-![Image](img/results.png)
+![example results](img/example-results.png)
