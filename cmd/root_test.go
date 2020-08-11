@@ -59,7 +59,7 @@ func TestValidate(t *testing.T) {
 			name:             "test folder recursive",
 			filenames:        []string{"testdata/manifests/test_recursive"},
 			schema:           "testdata/schemas/k8s-1.17.0.json",
-			crds:             []string{"testdata/crds"},
+			crds:             []string{"testdata/crds/cert-manager-legacy-v0.15.0.crds.yaml"},
 			expectedExitCode: 0,
 			recursive:        true,
 			expectedResults: []validate.ValidationResult{
@@ -72,7 +72,7 @@ func TestValidate(t *testing.T) {
 			name:             "test folder not recursive",
 			filenames:        []string{"testdata/manifests/test_recursive"},
 			schema:           "testdata/schemas/k8s-1.17.0.json",
-			crds:             []string{"testdata/crds"},
+			crds:             []string{"testdata/crds/cert-manager-legacy-v0.15.0.crds.yaml"},
 			expectedExitCode: 0,
 			recursive:        false,
 			expectedResults: []validate.ValidationResult{
@@ -143,6 +143,53 @@ func TestValidate(t *testing.T) {
 			expectedResults: []validate.ValidationResult{
 				{"valid", validate.SeverityOK, "my-new-cron-object", "", "stable.example.com/v1/CronTab"},
 			},
+		},
+		{
+			name:             "test crd v1beta1 without default 'spec.validation.schema'",
+			filenames:        []string{"testdata/manifests/crd_v1_crontab.yaml"},
+			schema:           "testdata/schemas/k8s-1.17.0.json",
+			crds:             []string{"testdata/crds/crontab_without_default_val.yaml"},
+			expectedExitCode: 0,
+			recursive:        false,
+			expectedResults: []validate.ValidationResult{
+				{"valid", validate.SeverityOK, "my-new-cron-object", "", "stable.example.com/v1/CronTab"},
+			},
+		},
+		{
+			name:             "test unknown Kind in crd definition",
+			filenames:        []string{"testdata/manifests/crd_v1_crontab.yaml"},
+			schema:           "testdata/schemas/k8s-1.17.0.json",
+			crds:             []string{"testdata/crds/unknown_crd_kind.yaml"},
+			expectedExitCode: 1,
+			recursive:        false,
+			expectedResults:  []validate.ValidationResult{},
+		},
+		{
+			name:             "test invalid crd definition",
+			filenames:        []string{"testdata/manifests/crd_v1_crontab.yaml"},
+			schema:           "testdata/schemas/k8s-1.17.0.json",
+			crds:             []string{"testdata/crds/invalid_crd.yaml"},
+			expectedExitCode: 1,
+			recursive:        false,
+			expectedResults:  []validate.ValidationResult{},
+		},
+		{
+			name:             "test non-existing manifests folder",
+			filenames:        []string{"testdata/manifests/doesnotexist"},
+			schema:           "testdata/schemas/k8s-1.17.0.json",
+			crds:             []string{"testdata/crds/invalid_crd.yaml"},
+			expectedExitCode: 1,
+			recursive:        false,
+			expectedResults:  []validate.ValidationResult{},
+		},
+		{
+			name:             "test non-existing schema file",
+			filenames:        []string{"testdata/manifests/crd_v1_crontab.yaml"},
+			schema:           "testdata/schemas/doesnotexist.json",
+			crds:             []string{"testdata/crds/invalid_crd.yaml"},
+			expectedExitCode: 1,
+			recursive:        false,
+			expectedResults:  []validate.ValidationResult{},
 		},
 	}
 

@@ -86,7 +86,8 @@ func runValidate(filenames []string, schema string, crds []string, recursive boo
 		}, fs.IsYamlFilter)
 		if err != nil {
 			fmt.Printf("Error loading CustomResourceDefinitions from %s: %s\n", crd, err)
-			// TODO: exit with error? log warning?
+			// TODO: log warning instead?
+			return 1, totalResults
 		}
 	}
 
