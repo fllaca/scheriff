@@ -1,0 +1,19 @@
+---
+version: 2.0
+
+jobs:
+  unit_tests:
+    docker:
+    - image: circleci/golang:1.14.1
+    steps:
+    - checkout
+    - run: make test
+    - run:
+        command: bash <(curl -s https://codecov.io/bash)
+        when: always
+
+workflows:
+  version: 2
+  default:
+    jobs:
+    - unit_tests
