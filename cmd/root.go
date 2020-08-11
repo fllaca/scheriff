@@ -22,7 +22,6 @@ var (
 		Long: `Schema Sheriff: A Kubernetes manifests validator tool
 
 Schema Sheriff performs offline validation of Kubernetes configuration manifests by checking them against OpenApi schemas. No connectivity to the Kubernetes cluster is needed`,
-		Version: Version,
 		Run: func(cmd *cobra.Command, args []string) {
 			exitCode, _ := runValidate(filenames, openApiSchema, crds, recursive)
 			os.Exit(exitCode)
@@ -45,7 +44,8 @@ func init() {
 }
 
 // Execute executes the root command.
-func Execute() error {
+func Execute(version, date, commit string) error {
+	rootCmd.Version = fmt.Sprintf("%s - %s (built %s)", version, date, commit)
 	return rootCmd.Execute()
 }
 
