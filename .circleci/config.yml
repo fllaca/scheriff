@@ -7,10 +7,18 @@ jobs:
     - image: circleci/golang:1.14.1
     steps:
     - checkout
+    - restore_cache: # restores saved cache if no changes are detected since last run
+          keys:
+            - go-mod-v1-{{ checksum "go.sum" }}
     - run: make test
     - run:
         command: bash <(curl -s https://codecov.io/bash)
         when: always
+    - save_cache:
+          key: go-mod-v1-{{ checksum "go.sum" }}
+          paths:
+            - "/go/pkg/mod"
+            - "/home/circleci/.cache/go-build"
 
 workflows:
   version: 2
