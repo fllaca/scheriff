@@ -19,9 +19,28 @@ jobs:
           paths:
             - "/go/pkg/mod"
             - "/home/circleci/.cache/go-build"
+  release:
+    docker:
+      - image: circleci/golang:1.14.1
+    steps:
+      - checkout
+      - run: hack/parse-changelog.sh $CIRCLE_TAG CHANGELOG.md > /tmp/release_notes.txt
+      - run: curl -sL https://git.io/goreleaser | bash -s -- --release-notes <(cat /tmp/release_notes.txt)
 
 workflows:
   version: 2
   default:
     jobs:
-    - unit_tests
+      - unit_tests:
+          filters:
+            tags:
+              only: /v[0-9]+(\.[0-9]+)*(-.*)*/
+
+      - release:
+          requires:
+            - unit_tests
+          filters:
+            branches:
+              ignore: /.*/
+            tags:
+              only: /v[0-9]+(\.[0-9]+)*(-.*)*/
