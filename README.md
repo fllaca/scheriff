@@ -1,5 +1,8 @@
 # Scheriff - Schema Sheriff
 
+[![CircleCI](https://circleci.com/gh/fllaca/scheriff/tree/master.svg?style=svg)](https://circleci.com/gh/fllaca/scheriff/tree/master)
+[![codecov](https://codecov.io/gh/fllaca/scheriff/branch/master/graph/badge.svg)](https://codecov.io/gh/fllaca/scheriff)
+
 Yet another Kubernetes manifests validation tool.
 
 Schema Sheriff performs offline validation of Kubernetes configuration manifests by checking them against OpenApi schemas. No connectivity to the Kubernetes cluster is needed
