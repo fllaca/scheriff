@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/fllaca/okay/pkg/kubernetes"
-	"github.com/fllaca/okay/pkg/utils"
+	"github.com/fllaca/scheriff/pkg/kubernetes"
+	"github.com/fllaca/scheriff/pkg/utils"
 	"github.com/getkin/kin-openapi/openapi2"
 	"github.com/getkin/kin-openapi/openapi2conv"
 	"github.com/getkin/kin-openapi/openapi3"

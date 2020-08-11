@@ -4,7 +4,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/fllaca/okay/pkg/validate"
+	"github.com/fllaca/scheriff/pkg/validate"
 	"github.com/stretchr/testify/assert"
 )
 

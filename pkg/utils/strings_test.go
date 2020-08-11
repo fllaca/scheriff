@@ -3,7 +3,7 @@ package utils_test
 import (
 	"testing"
 
-	"github.com/fllaca/okay/pkg/utils"
+	"github.com/fllaca/scheriff/pkg/utils"
 	"github.com/stretchr/testify/assert"
 )
 

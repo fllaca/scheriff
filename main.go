@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/fllaca/okay/cmd"
+	"github.com/fllaca/scheriff/cmd"
 )
 
 func main() {

@@ -1,4 +1,4 @@
-module github.com/fllaca/okay
+module github.com/fllaca/scheriff
 
 go 1.14
 

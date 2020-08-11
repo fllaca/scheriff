@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"fmt"
 
-	"github.com/fllaca/okay/pkg/utils"
+	"github.com/fllaca/scheriff/pkg/utils"
 	"sigs.k8s.io/yaml"
 )
 

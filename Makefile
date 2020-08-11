@@ -3,11 +3,11 @@ _artifacts:
 
 .PHONY: build
 build: _artifacts
-	CGO_ENABLED=0 go build -o _artifacts/okay .
+	CGO_ENABLED=0 go build -o _artifacts/scheriff .
 
 .PHONY: test
 test: _artifacts
-	go test -coverprofile=_artifacts/coverage.out -coverpkg github.com/fllaca/okay/... ./...
+	go test -coverprofile=_artifacts/coverage.out -coverpkg github.com/fllaca/scheriff/... ./...
 	go tool cover -func=_artifacts/coverage.out
 	go tool cover -html=_artifacts/coverage.out -o _artifacts/coverage.html
 

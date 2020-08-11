@@ -5,10 +5,10 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/fllaca/okay/pkg/fs"
-	"github.com/fllaca/okay/pkg/kubernetes"
-	"github.com/fllaca/okay/pkg/utils"
-	"github.com/fllaca/okay/pkg/validate"
+	"github.com/fllaca/scheriff/pkg/fs"
+	"github.com/fllaca/scheriff/pkg/kubernetes"
+	"github.com/fllaca/scheriff/pkg/utils"
+	"github.com/fllaca/scheriff/pkg/validate"
 	"github.com/spf13/cobra"
 
 	"github.com/gookit/color"
@@ -16,7 +16,7 @@ import (
 
 var (
 	rootCmd = &cobra.Command{
-		Use:   "okay",
+		Use:   "scheriff",
 		Short: "A Kubernetes manifests validator tool",
 		Long:  `A Kubernetes manifests validator tool`,
 		Run: func(cmd *cobra.Command, args []string) {
