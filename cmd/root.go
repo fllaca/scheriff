@@ -15,12 +15,14 @@ import (
 )
 
 var (
+	Version = "development"
 	rootCmd = &cobra.Command{
 		Use:   "scheriff",
 		Short: "Schema Sheriff: A Kubernetes manifests validator tool",
 		Long: `Schema Sheriff: A Kubernetes manifests validator tool
 
 Schema Sheriff performs offline validation of Kubernetes configuration manifests by checking them against OpenApi schemas. No connectivity to the Kubernetes cluster is needed`,
+		Version: Version,
 		Run: func(cmd *cobra.Command, args []string) {
 			exitCode, _ := runValidate(filenames, openApiSchema, crds, recursive)
 			os.Exit(exitCode)
