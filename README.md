@@ -1,6 +1,8 @@
 # Scheriff - Schema Sheriff
 
-Yet another Kubernetes manifests validation tool
+Yet another Kubernetes manifests validation tool.
+
+Schema Sheriff performs offline validation of Kubernetes configuration manifests by checking them against OpenApi schemas. No connectivity to the Kubernetes cluster is needed
 
 ![Scheriff](img/scheriff.gif "Clint")
 
@@ -10,7 +12,9 @@ Yet another Kubernetes manifests validation tool
 ```
 $> scheriff --help
 
-A Kubernetes manifests validator tool
+Schema Sheriff: A Kubernetes manifests validator tool
+
+Schema Sheriff performs offline validation of Kubernetes configuration manifests by checking them against OpenApi schemas. No connectivity to the Kubernetes cluster is needed
 
 Usage:
   scheriff [flags]
