@@ -40,15 +40,14 @@ func NewOpenApi2Validator(openApi2SpecsBytes []byte) (*OpenApiValidator, error) 
 		return nil, err
 	}
 	// In kubernetes API specs this field is specifed as "type: string", although integers are also accepted
-	/* Alternative: add definition before converting to openapi3
 	swagger2.Definitions["io.k8s.apimachinery.pkg.util.intstr.IntOrString"] = &openapi3.SchemaRef{
 		Value: openapi3.NewOneOfSchema(
 			openapi3.NewStringSchema(),
 			openapi3.NewInt32Schema()),
 	}
-	*/
 
 	swagger3, err := openapi2conv.ToV3Swagger(swagger2)
+	/* Alternative: add missing definitions after converting to openapi3
 	swagger3.Components.Schemas["io.k8s.apimachinery.pkg.util.intstr.IntOrString"] = &openapi3.SchemaRef{
 		Value: openapi3.NewOneOfSchema(
 			openapi3.NewStringSchema(),
@@ -61,6 +60,7 @@ func NewOpenApi2Validator(openApi2SpecsBytes []byte) (*OpenApiValidator, error) 
 			return nil, err
 		}
 	}
+	*/
 
 	// build schemaCache:
 	schemaCache, err := buildSchemaCache(swagger3)
@@ -131,7 +131,6 @@ func getK8sGroupVersionKind(schema *openapi3.SchemaRef) ([]extPropsGroupVersionK
 		if err != nil {
 			return nil, err
 		}
-		return kindDefs, nil
 	}
 	return kindDefs, nil
 }
