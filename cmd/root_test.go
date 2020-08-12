@@ -191,6 +191,24 @@ func TestValidate(t *testing.T) {
 			recursive:        false,
 			expectedResults:  []validate.ValidationResult{},
 		},
+		{
+			name:             "test non-existing crd file",
+			filenames:        []string{"testdata/manifests/crd_v1_crontab.yaml"},
+			schema:           "testdata/schemas/k8s-1.17.0.json",
+			crds:             []string{"testdata/crds/doesnotexist.yaml"},
+			expectedExitCode: 1,
+			recursive:        false,
+			expectedResults:  []validate.ValidationResult{},
+		},
+		{
+			name:             "test crd invalid yaml",
+			filenames:        []string{"testdata/manifests/crd_v1_crontab.yaml"},
+			schema:           "testdata/schemas/k8s-1.17.0.json",
+			crds:             []string{"testdata/crds/invalid_yaml"},
+			expectedExitCode: 1,
+			recursive:        false,
+			expectedResults:  []validate.ValidationResult{},
+		},
 	}
 
 	for _, test := range tests {

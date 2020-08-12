@@ -10,6 +10,7 @@ import (
 type FileFunc func(filename string) error
 type FileNameFilter func(filename string) bool
 
+// ApplyToPathWithFilter executes a 'FileFunc' function for each file in a given 'path'. If 'path' is a regular file itself 'FileFunc' will be applied to it directly. If 'path' is a folder, the function will be applied to each regular file inside the folder. This behaviour can be made recursive by setting 'recursive' to true.
 func ApplyToPathWithFilter(path string, recursive bool, function FileFunc, filter FileNameFilter) error {
 	fileInfo, err := os.Stat(path)
 	if err != nil {
@@ -29,11 +30,6 @@ func ApplyToFile(path string, function FileFunc, filter FileNameFilter) error {
 		return function(path)
 	}
 	return nil
-}
-
-// ApplyToPath executes a 'FileFunc' function for each file in a given 'path'. If 'path' is a regular file itself 'FileFunc' will be applied to it directly. If 'path' is a folder, the function will be applied to each regular file inside the folder. This behaviour can be made recursive by setting 'recursive' to true.
-func ApplyToPath(path string, recursive bool, function FileFunc) error {
-	return ApplyToPathWithFilter(path, recursive, function, nil)
 }
 
 func ApplyToFolder(folder string, recursive bool, function FileFunc, filter FileNameFilter) error {
