@@ -18,13 +18,21 @@ _SchemaSheriff_ aims to tackle all this by validating your K8s configuration man
 
 ## Usage
 
-_SchemaSheriff_ usage is really simple, just use the `-f` flag to specify the files or folders containing the K8s config files to be validated, and the `-s` flag to indicate the path to the OpenApi specs of the specific Kubernetes version to be validated against. The important thing then is getting the schemas:
+_SchemaSheriff_ usage is really simple, just use the `-f` flag to specify the files or folders containing the K8s config files to be validated, and the `-s` flag to indicate the path to the OpenApi specs of the specific Kubernetes version to be validated against:
 
-## Get the schemas
+```bash
+scheriff -s k8s-openapi-specs.json -f examples
+```
+
+![screenshot](img/screenshot.png)
+
+As _SchemaSheriff_ relies on the specs given by the `-s` option, the important thing then is how to [Get the schemas](#get-the-schemas) specs:
+
+### Get the schemas
 
 There are several ways to obtain the Kubernetes OpenAPI schemas for validation, but mainly you can either ask for them to cluster directly, or download them from the Kubernetes public repository.
 
-### Get the schemas from the Cluster
+#### Get the schemas from the Cluster
 
 Just running this command you can obtain the K8s OpenAPI specs directly from your cluster:
 
@@ -41,7 +49,7 @@ scheriff -s k8s-openapi-specs.json -f path/to/config/files
 ```
 
 
-### Download the schemas from Kubernetes Repo
+#### Download the schemas from Kubernetes Repo
 
 If you want to do "offline" validation (without connecting to any K8s cluster), the OpenApi specs of all versions of Kubernetes are publicly available at `https://raw.githubusercontent.com/kubernetes/kubernetes/v${KUBERNETES_VERSION}/api/openapi-spec/swagger.json` and can be downloaded direclty from there:
 
@@ -54,6 +62,7 @@ curl -sL "https://raw.githubusercontent.com/kubernetes/kubernetes/v${KUBERNETES_
 scheriff -s k8s-$KUBERNETES_VERSION-openapi-specs.json -f path/to/config/files
 ```
 
+### All options
 
 ```
 $> scheriff --help
@@ -74,9 +83,6 @@ Flags:
       --version                version for scheriff
 
 ```
-
-
-![example results](img/example-results.png)
 
 ## How it compares to other tools
 

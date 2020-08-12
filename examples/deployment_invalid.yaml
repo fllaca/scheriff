@@ -1,0 +1,39 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: some-app-envoy
+  name: some-invalid-deployment
+  namespace: example
+spec:
+  replicas: 3
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      annotations:
+        prometheus.io/path: /stats/prometheus
+        prometheus.io/port: "9991"
+        prometheus.io/scrape: "true"
+      labels:
+        app: some-app-envoy
+    spec:
+      containers:
+      - image: envoyproxy/envoy:v1.13.1
+        imagePullPolicy: IfNotPresent
+        name: envoy
+        resources: {}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+        - mountPath: /etc/envoy
+          name: envoy-conf
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: envoy-conf
+        name: envoy-conf
