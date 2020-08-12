@@ -21,7 +21,7 @@ _SchemaSheriff_ aims to tackle all this by validating your K8s configuration man
 _SchemaSheriff_ usage is really simple, just use the `-f` flag to specify the files or folders containing the K8s config files to be validated, and the `-s` flag to indicate the path to the OpenApi specs of the specific Kubernetes version to be validated against:
 
 ```bash
-scheriff -s k8s-openapi-specs.json -f examples
+scheriff -s k8s-1.17.0-openapi-specs.json -f examples
 ```
 
 ![screenshot](img/screenshot.png)
@@ -30,11 +30,11 @@ As _SchemaSheriff_ relies on the specs given by the `-s` option, the important t
 
 ### Get the schemas
 
-There are several ways to obtain the Kubernetes OpenAPI schemas for validation, but mainly you can either ask for them to cluster directly, or download them from the Kubernetes public repository.
+There are several ways to obtain the Kubernetes OpenAPI schemas for validation, but mainly there are two options: you can either ask for them directly to the cluster, or either download them from the Kubernetes public repository:
 
 #### Get the schemas from the Cluster
 
-Just running this command you can obtain the K8s OpenAPI specs directly from your cluster:
+Just by running the following command you can obtain the K8s OpenAPI specs directly from your K8s cluster:
 
 ```bash
 kubectl get --raw /openapi/v2 > k8s-openapi-specs.json
@@ -45,7 +45,10 @@ Then you can use those specs to validate your config. Full example:
 ```bash
 kubectl get --raw /openapi/v2 > k8s-openapi-specs.json
 
-scheriff -s k8s-openapi-specs.json -f path/to/config/files
+scheriff -s k8s-openapi-specs.json -f examples/
+
+# Oneliner alternative using process substitution:
+scheriff -s <(kubectl get --raw /openapi/v2) -f examples/
 ```
 
 
@@ -59,7 +62,27 @@ KUBERNETES_VERSION=1.17.0
 
 curl -sL "https://raw.githubusercontent.com/kubernetes/kubernetes/v${KUBERNETES_VERSION}/api/openapi-spec/swagger.json" > k8s-$KUBERNETES_VERSION-openapi-specs.json
 
-scheriff -s k8s-$KUBERNETES_VERSION-openapi-specs.json -f path/to/config/files
+scheriff -s k8s-$KUBERNETES_VERSION-openapi-specs.json -f examples/
+```
+
+### Validating CRDs (Custom Resource Definitions)
+
+Custom Resource Definitions can be validated by providing the `--crd` flag with the CRD manifest files. Similarly as the Kubernetes OpenAPI specs, you can get them directly from the cluster:
+
+```bash
+kubectl get crd certificates.cert-manager.io -o yaml > certificates.cert-manager.io.yaml
+
+scheriff -s k8s-1.17.0-openapi-specs.json --crd certificates.cert-manager.io.yaml -f examples/crds/
+```
+
+![screenshot-crds](img/screenshot-crds.png)
+
+Or you can download the CRDs from a vendor URL, tipically the CRD manifests of common operators can be found in their Github repos. Example for _Cert-Manager_ CRDs:
+
+```bash
+curl -sL "https://github.com/jetstack/cert-manager/releases/download/v0.16.1/cert-manager.crds.yaml" > cert-manager.crds.yaml
+
+scheriff -s k8s-1.17.0-openapi-specs.json --crd cert-manager.crds.yaml -f examples/crds/
 ```
 
 ### All options
@@ -87,3 +110,5 @@ Flags:
 ## How it compares to other tools
 
 * [Kubeval](https://github.com/instrumenta/kubeval/): _SchemaSheriff_ was inspired by this amazing project. Kubeval has a rich set of handy features (like automatic downloads of schemas), and also provides offline validation of Kubernetes configuration, but it doesn't support CRD validation. It also relies on some pre-generated JsonSchemas that are maintained in a third repository. _SchemaSheriff_ supports CRD validation using the `--crd` flag, and uses directly the OpenApi schemas offered directly by Kubernetes, without needing to transform them.
+* [Kube-score](https://github.com/zegl/kube-score): _Kubes-core_ is more a "best-practices" enforcer with some predefined rules to inform you about "common" errors in your K8s configuration. It can also check some API specs compliance, but it's limited to a subset of all resource kinds from the K8s stable versions. This feature is hardcoded in _Kube-score_, so you cannot plug different K8s versions schemas to check against them, neither custom CRDs.
+
