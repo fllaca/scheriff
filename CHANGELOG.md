@@ -14,11 +14,11 @@ Add changes in one of these sections:
 
 ## [Unreleased]
 
-## v0.0.1-rc1
+## v0.0.1-rc1 - 2020-08-13
 
 This is the very first _SchemaSheriff_ release candidate! :tada:
 
-Please use this version to start playing around with the tool. If you find something to be fixed/improved please you are super welcome to raise an issue in [Scheriff Issues](https://github.com/fllaca/scheriff), your feedback and Pull Requests will be very appreciated.
+Please use this version to start playing around with the tool. If you find something to be fixed/improved please you are super welcome to raise an issue in [Scheriff Issues](https://github.com/fllaca/scheriff/issues), your feedback and Pull Requests will be very appreciated.
 
 ### Added
 
