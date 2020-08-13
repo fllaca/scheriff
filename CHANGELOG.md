@@ -14,7 +14,7 @@ Add changes in one of these sections:
 
 ## [Unreleased]
 
-## v0.0.1-rc1 - 2020-08-13
+## [v0.0.1-rc1] - 2020-08-13
 
 This is the very first _SchemaSheriff_ release candidate! :tada:
 
