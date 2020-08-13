@@ -22,6 +22,9 @@ if [[ -z "$release_notes_start" ]]; then
   exit 1
 fi
 
+# Remove line containing the release title
+release_notes_start=$((release_notes_start+1))
+
 # get line number of previous version entry in changelog
 previous_version_entry=$(cat $changelog_file | awk "{if (NR>$release_notes_start) print}" | grep -n $changelog_entry_prefix || [[ $? == 1 ]])
 release_notes_length=$(echo "$previous_version_entry" | cut -d : -f1)
