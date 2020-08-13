@@ -15,6 +15,33 @@ Kubernetes configuration can become complex and hard to maintain in medium-big p
 
 _SchemaSheriff_ aims to tackle all this by validating your K8s configuration manifests against OpenAPI schemas, which can be easily downloaded from either the cluster itself or the public Kubernetes repository (see [Get the schemas](#get-the-schemas)). This validation can be performed 100% offline without needing a connection to any K8s cluster.
 
+## Installation
+
+Download the latest release from [Scheriff releases](https://github.com/fllaca/scheriff/releases), unzip it and place the `scheriff` binary into your $PATH:
+
+### Linux
+
+```bash
+wget https://github.com/fllaca/scheriff/releases/latest/download/scheriff_linux_amd64.tar.gz
+
+tar xf scheriff_linux_amd64.tar.gz
+sudo mv scheriff /usr/local/bin
+```
+
+### Mac
+
+```bash
+wget https://github.com/fllaca/scheriff/releases/latest/download/scheriff_darwin_amd64.tar.gz
+
+tar xf scheriff_darwin_amd64.tar.gz
+sudo mv scheriff /usr/local/bin
+```
+
+### Windows
+
+1. Download latest version from `https://github.com/fllaca/scheriff/releases/latest/download/scheriff_windows_amd64.zip`
+2. Unzip `scheriff_windows_amd64.zip`
+3. Put `scheriff.exe` in your $PATH
 
 ## Usage
 
