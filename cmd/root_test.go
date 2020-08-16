@@ -174,6 +174,15 @@ func TestValidate(t *testing.T) {
 			expectedResults:  []validate.ValidationResult{},
 		},
 		{
+			name:             "test crd with bad yaml syntax",
+			filenames:        []string{"testdata/manifests/crd_v1_crontab.yaml"},
+			schema:           "testdata/schemas/k8s-1.17.0.json",
+			crds:             []string{"testdata/crds/invalid_yaml.yaml"},
+			expectedExitCode: 1,
+			recursive:        false,
+			expectedResults:  []validate.ValidationResult{},
+		},
+		{
 			name:             "test non-existing manifests folder",
 			filenames:        []string{"testdata/manifests/doesnotexist"},
 			schema:           "testdata/schemas/k8s-1.17.0.json",
