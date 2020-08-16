@@ -1,12 +1,21 @@
 package cmd
 
 import (
+	"io"
 	"os"
 	"testing"
 
 	"github.com/fllaca/scheriff/pkg/validate"
 	"github.com/stretchr/testify/assert"
 )
+
+func openFile(t *testing.T, filename string) io.Reader {
+	reader, err := os.Open(filename)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return reader
+}
 
 func TestValidate(t *testing.T) {
 	wd, _ := os.Getwd()
@@ -16,6 +25,7 @@ func TestValidate(t *testing.T) {
 		opts             validateOptions
 		expectedResults  []validate.ValidationResult
 		expectedExitCode int
+		stdin            io.Reader
 	}{
 		{
 			name: "test valid deploy",
@@ -384,6 +394,20 @@ func TestValidate(t *testing.T) {
 			expectedExitCode: 0,
 			expectedResults: []validate.ValidationResult{
 				{Message: "valid", Severity: "OK", Name: "test-cm", Namespace: "default", Kind: "v1/ConfigMap"},
+			},
+		},
+		{
+			name: "test stdin",
+			opts: validateOptions{
+				filenames:             []string{"-"},
+				openApiSchemaFilename: "testdata/schemas/k8s-1.17.0.json",
+				crds:                  []string{"testdata/crds/crontab_without_default_val.yaml"},
+				input:                 openFile(t, "testdata/manifests/crd_v1_crontab.yaml"),
+				recursive:             false,
+			},
+			expectedExitCode: 0,
+			expectedResults: []validate.ValidationResult{
+				{Message: "valid", Severity: validate.SeverityOK, Name: "my-new-cron-object", Namespace: "", Kind: "stable.example.com/v1/CronTab"},
 			},
 		},
 	}
