@@ -9,6 +9,22 @@ Schema Sheriff performs offline validation of Kubernetes configuration manifests
 
 ![Scheriff](img/scheriff.gif "Clint")
 
+## Contents
+
+* [Rationale](#rationale)
+* [Installation](#installation)
+  + [Linux](#linux)
+  + [Mac](#mac)
+  + [Windows](#windows)
+  + [Docker](#docker)
+* [Usage](#usage)
+  + [Get the schemas](#get-the-schemas)
+    - [Get the schemas from the Cluster](#get-the-schemas-from-the-cluster)
+    - [Download the schemas from Kubernetes Repo](#download-the-schemas-from-kubernetes-repo)
+  + [Validating CRDs (Custom Resource Definitions)](#validating-crds-custom-resource-definitions)
+  + [All options](#all-options)
+* [How it compares to other tools](#how-it-compares-to-other-tools)
+
 ## Rationale
 
 Kubernetes configuration can become complex and hard to maintain in medium-big projects: it can be easy to make silly syntax mistakes when writing the specs of a new resource, and the way to check the config is valid is usually deploying it or running `kubectl apply --dry-run`, which both require an actual K8s cluster to do so. This gets even more complicated when using Custom Resource Definitions (CRDs) or when wanting to validate against multiple K8s versions.
@@ -42,6 +58,12 @@ sudo mv scheriff /usr/local/bin
 1. Download latest version from `https://github.com/fllaca/scheriff/releases/latest/download/scheriff_windows_amd64.zip`
 2. Unzip `scheriff_windows_amd64.zip`
 3. Put `scheriff.exe` in your $PATH
+
+### Docker
+
+```
+docker pull quay.io/fllaca/scheriff
+```
 
 ## Usage
 

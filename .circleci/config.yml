@@ -24,8 +24,17 @@ jobs:
       - image: circleci/golang:1.14.1
     steps:
       - checkout
+      - setup_remote_docker
+      - run: docker login -u="$QUAY_TOKEN" -p="$QUAY_TOKEN" quay.io
       - run: hack/parse-changelog.sh $CIRCLE_TAG CHANGELOG.md > /tmp/release_notes.txt
       - run: curl -sL https://git.io/goreleaser | bash -s -- --release-notes <(cat /tmp/release_notes.txt)
+  release_dry:
+    docker:
+      - image: circleci/golang:1.14.1
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run: curl -sL https://git.io/goreleaser | bash -s -- --rm-dist --snapshot
 
 workflows:
   version: 2
@@ -35,10 +44,15 @@ workflows:
           filters:
             tags:
               only: /v[0-9]+(\.[0-9]+)*(-.*)*/
+      - release_dry:
+          filters:
+            tags:
+              only: /v[0-9]+(\.[0-9]+)*(-.*)*/
 
       - release:
           requires:
             - unit_tests
+            - release_dry
           filters:
             branches:
               ignore: /.*/

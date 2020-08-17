@@ -2,3 +2,5 @@ scheriff
 _artifacts/*
 dist
 
+.vscode
+
