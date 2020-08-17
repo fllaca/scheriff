@@ -43,6 +43,12 @@ sudo mv scheriff /usr/local/bin
 2. Unzip `scheriff_windows_amd64.zip`
 3. Put `scheriff.exe` in your $PATH
 
+### Docker
+
+```
+docker pull quay.io/fllaca/scheriff
+```
+
 ## Usage
 
 _SchemaSheriff_ usage is really simple, just use the `-f` flag to specify the files or folders containing the K8s config files to be validated, and the `-s` flag to indicate the path to the OpenApi specs of the specific Kubernetes version to be validated against:
