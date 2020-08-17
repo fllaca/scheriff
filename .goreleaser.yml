@@ -19,7 +19,7 @@ archives:
 dockers:
 - image_templates:
   - "quay.io/fllaca/scheriff:latest"
-  - "quay.io/fllaca/scheriff:{{ .Tag }}"
+  - "quay.io/fllaca/scheriff:{{ .Version }}"
 
 checksum:
   name_template: 'checksums.txt'
