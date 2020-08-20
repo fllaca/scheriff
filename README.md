@@ -152,6 +152,7 @@ Flags:
   -h, --help                   help for scheriff
   -R, --recursive              process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.
   -s, --schema string          (required) Kubernetes OpenAPI V2 schema to validate against
+  -S, --strict                 return exit code 1 not only on errors but also when warnings are encountered.
       --version                version for scheriff
 
 ```
