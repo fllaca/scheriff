@@ -161,3 +161,5 @@ Flags:
 * [Kubeval](https://github.com/instrumenta/kubeval/): _SchemaSheriff_ was inspired by this amazing project. Kubeval has a rich set of handy features (like automatic downloads of schemas), and also provides offline validation of Kubernetes configuration, but it doesn't support CRD validation. It also relies on some pre-generated JsonSchemas that are maintained in a third repository. _SchemaSheriff_ supports CRD validation using the `--crd` flag, and uses directly the OpenApi schemas offered directly by Kubernetes, without needing to transform them.
 * [Kube-score](https://github.com/zegl/kube-score): _Kubes-core_ is more a "best-practices" enforcer with some predefined rules to inform you about "common" errors in your K8s configuration. It can also check some API specs compliance, but it's limited to a subset of all resource kinds from the K8s stable versions. This feature is hardcoded in _Kube-score_, so you cannot plug different K8s versions schemas to check against them, neither custom CRDs.
 
+
+
