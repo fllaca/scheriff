@@ -31,6 +31,7 @@ Schema Sheriff performs offline validation of Kubernetes configuration manifests
 	crds          = make([]string, 0)
 	openApiSchema = ""
 	recursive     = false
+	strict        = false
 )
 
 func init() {
@@ -39,6 +40,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&openApiSchema, "schema", "s", "", "(required) Kubernetes OpenAPI V2 schema to validate against")
 	rootCmd.PersistentFlags().BoolVarP(&recursive, "recursive", "R", false, "process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.")
 	rootCmd.PersistentFlags().StringArrayVarP(&crds, "crd", "c", []string{}, "files or directories that contain CustomResourceDefinitions to be used for validation")
+	rootCmd.PersistentFlags().BoolVarP(&strict, "strict", "S", false, "return exit code 1 not only on errors but also when warnings are encountered.")
 	rootCmd.MarkPersistentFlagRequired("filename")
 	rootCmd.MarkPersistentFlagRequired("schema")
 }
@@ -106,7 +108,7 @@ func runValidate(filenames []string, schema string, crds []string, recursive boo
 
 			validationResults := fileValidator.Validate(fileBytes)
 			outputResult(validationResults)
-			if containsError(validationResults) {
+			if containsSeverity(validationResults, validate.SeverityError) || (strict && containsSeverity(validationResults, validate.SeverityWarning)) {
 				exitCode = 1
 			}
 			totalResults = append(totalResults, validationResults...)
@@ -128,9 +130,9 @@ func outputResult(results []validate.ValidationResult) {
 	fmt.Println()
 }
 
-func containsError(results []validate.ValidationResult) bool {
+func containsSeverity(results []validate.ValidationResult, severity validate.Severity) bool {
 	for _, result := range results {
-		if result.Severity == validate.SeverityError {
+		if result.Severity == severity {
 			return true
 		}
 	}
