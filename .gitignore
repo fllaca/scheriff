@@ -1,6 +1,7 @@
+# build outputs
 scheriff
 _artifacts/*
 dist
 
+# IDE specific
 .vscode
-
