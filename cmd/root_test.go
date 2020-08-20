@@ -15,6 +15,7 @@ func TestValidate(t *testing.T) {
 		name             string
 		filenames        []string
 		recursive        bool
+		strict           bool
 		schema           string
 		crds             []string
 		expectedResults  []validate.ValidationResult
@@ -27,6 +28,7 @@ func TestValidate(t *testing.T) {
 			crds:             []string{},
 			expectedExitCode: 0,
 			recursive:        false,
+			strict:			  false,
 			expectedResults: []validate.ValidationResult{
 				{"valid", validate.SeverityOK, "some-app-envoy", "example", "v1/Service"},
 				{"valid", validate.SeverityOK, "some-app-envoy", "example", "extensions/v1beta1/Deployment"},
@@ -39,6 +41,7 @@ func TestValidate(t *testing.T) {
 			crds:             []string{},
 			expectedExitCode: 1,
 			recursive:        false,
+			strict:			  false,
 			expectedResults: []validate.ValidationResult{
 				{"valid", "OK", "some-app-envoy", "example", "v1/Service"},
 				{"Error at \"/spec/template/spec/containers/0/name\":Property 'name' is missing", "ERROR", "some-app-envoy", "example", "extensions/v1beta1/Deployment"},
@@ -51,6 +54,7 @@ func TestValidate(t *testing.T) {
 			crds:             []string{},
 			expectedExitCode: 1,
 			recursive:        false,
+			strict:			  false,
 			expectedResults: []validate.ValidationResult{
 				{"Error parsing k8s resource from document 0: error converting YAML to JSON: yaml: line 3: mapping values are not allowed in this context\n", validate.SeverityError, "", "", ""},
 			},
@@ -75,6 +79,7 @@ func TestValidate(t *testing.T) {
 			crds:             []string{"testdata/crds/cert-manager-legacy-v0.15.0.crds.yaml"},
 			expectedExitCode: 0,
 			recursive:        false,
+			strict:			  false,
 			expectedResults: []validate.ValidationResult{
 				{"valid", validate.SeverityOK, "example-cert", "example", "cert-manager.io/v1alpha2/Certificate"},
 				{"valid", validate.SeverityOK, "some-app-envoy", "example", "v1/Service"},
@@ -87,6 +92,7 @@ func TestValidate(t *testing.T) {
 			crds:             []string{"testdata/crds/cert-manager-legacy-v0.15.0.crds.yaml"},
 			expectedExitCode: 0,
 			recursive:        false,
+			strict:			  false,
 			expectedResults: []validate.ValidationResult{
 				{"valid", validate.SeverityOK, "example-cert", "example", "cert-manager.io/v1alpha2/Certificate"},
 			},
@@ -98,6 +104,7 @@ func TestValidate(t *testing.T) {
 			crds:             []string{"testdata/crds/cert-manager-legacy-v0.15.0.crds.yaml"},
 			expectedExitCode: 1,
 			recursive:        false,
+			strict:			  false,
 			expectedResults: []validate.ValidationResult{
 				{"Error at \"/spec/secretName\":Property 'secretName' is missing", validate.SeverityError, "example-invalid-cert", "example", "cert-manager.io/v1alpha2/Certificate"},
 			},
@@ -109,6 +116,19 @@ func TestValidate(t *testing.T) {
 			crds:             []string{},
 			expectedExitCode: 0,
 			recursive:        false,
+			strict:			  false,
+			expectedResults: []validate.ValidationResult{
+				{"Kind 'example.io/v1/UnknownCRD' not found in schema", validate.SeverityWarning, "example-unknown-kind", "example", "example.io/v1/UnknownCRD"},
+			},
+		},
+		{
+			name:             "test unknown crd strict",
+			filenames:        []string{"testdata/manifests/unknown_kind.yaml"},
+			schema:           "testdata/schemas/k8s-1.17.0.json",
+			crds:             []string{},
+			expectedExitCode: 0,
+			recursive:        false,
+			strict:			  true,
 			expectedResults: []validate.ValidationResult{
 				{"Kind 'example.io/v1/UnknownCRD' not found in schema", validate.SeverityWarning, "example-unknown-kind", "example", "example.io/v1/UnknownCRD"},
 			},
@@ -120,6 +140,7 @@ func TestValidate(t *testing.T) {
 			crds:             []string{},
 			expectedExitCode: 1,
 			recursive:        false,
+			strict:			  false,
 			expectedResults:  []validate.ValidationResult{},
 		},
 		{
@@ -129,6 +150,7 @@ func TestValidate(t *testing.T) {
 			crds:             []string{"testdata/crds/v1_crontab.yaml"},
 			expectedExitCode: 0,
 			recursive:        false,
+			strict:			  false,
 			expectedResults: []validate.ValidationResult{
 				{"valid", validate.SeverityOK, "my-new-cron-object", "", "stable.example.com/v1/CronTab"},
 			},
@@ -140,6 +162,7 @@ func TestValidate(t *testing.T) {
 			crds:             []string{"testdata/crds/without_schemas.yaml"},
 			expectedExitCode: 0,
 			recursive:        false,
+			strict:			  false,
 			expectedResults: []validate.ValidationResult{
 				{"valid", validate.SeverityOK, "my-new-cron-object", "", "stable.example.com/v1/CronTab"},
 			},
@@ -151,6 +174,7 @@ func TestValidate(t *testing.T) {
 			crds:             []string{"testdata/crds/crontab_without_default_val.yaml"},
 			expectedExitCode: 0,
 			recursive:        false,
+			strict:			  false,
 			expectedResults: []validate.ValidationResult{
 				{"valid", validate.SeverityOK, "my-new-cron-object", "", "stable.example.com/v1/CronTab"},
 			},
@@ -162,6 +186,7 @@ func TestValidate(t *testing.T) {
 			crds:             []string{"testdata/crds/unknown_crd_kind.yaml"},
 			expectedExitCode: 1,
 			recursive:        false,
+			strict:			  false,
 			expectedResults:  []validate.ValidationResult{},
 		},
 		{
@@ -171,6 +196,7 @@ func TestValidate(t *testing.T) {
 			crds:             []string{"testdata/crds/invalid_crd.yaml"},
 			expectedExitCode: 1,
 			recursive:        false,
+			strict:			  false,
 			expectedResults:  []validate.ValidationResult{},
 		},
 		{
@@ -180,6 +206,7 @@ func TestValidate(t *testing.T) {
 			crds:             []string{"testdata/crds/invalid_yaml.yaml"},
 			expectedExitCode: 1,
 			recursive:        false,
+			strict:			  false,
 			expectedResults:  []validate.ValidationResult{},
 		},
 		{
@@ -189,6 +216,7 @@ func TestValidate(t *testing.T) {
 			crds:             []string{"testdata/crds/invalid_crd.yaml"},
 			expectedExitCode: 1,
 			recursive:        false,
+			strict:			  false,
 			expectedResults:  []validate.ValidationResult{},
 		},
 		{
@@ -198,6 +226,7 @@ func TestValidate(t *testing.T) {
 			crds:             []string{"testdata/crds/invalid_crd.yaml"},
 			expectedExitCode: 1,
 			recursive:        false,
+			strict:			  false,
 			expectedResults:  []validate.ValidationResult{},
 		},
 		{
@@ -207,6 +236,7 @@ func TestValidate(t *testing.T) {
 			crds:             []string{"testdata/crds/doesnotexist.yaml"},
 			expectedExitCode: 1,
 			recursive:        false,
+			strict:			  false,
 			expectedResults:  []validate.ValidationResult{},
 		},
 		{
@@ -216,6 +246,7 @@ func TestValidate(t *testing.T) {
 			crds:             []string{"testdata/crds/invalid_yaml"},
 			expectedExitCode: 1,
 			recursive:        false,
+			strict:			  false,
 			expectedResults:  []validate.ValidationResult{},
 		},
 	}
