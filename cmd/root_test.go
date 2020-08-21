@@ -218,6 +218,18 @@ func TestValidate(t *testing.T) {
 			recursive:        false,
 			expectedResults:  []validate.ValidationResult{},
 		},
+		{
+			name:             "test additional properties",
+			filenames:        []string{"testdata/manifests/deployment_additional_properties.yaml"},
+			schema:           "testdata/schemas/k8s-1.17.0.json",
+			crds:             []string{},
+			expectedExitCode: 1,
+			recursive:        false,
+			expectedResults: []validate.ValidationResult{
+				{Message: "valid", Severity: "OK", Name: "test", Namespace: "default", Kind: "v1/ConfigMap"},
+				{Message: "Error at \"/spec/template/spec\":Property 'unexpectedAdditionalProperty' is unsupported", Severity: "ERROR", Name: "some-app-envoy", Namespace: "example", Kind: "apps/v1/Deployment"},
+			},
+		},
 	}
 
 	for _, test := range tests {

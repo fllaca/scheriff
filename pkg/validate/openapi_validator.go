@@ -62,6 +62,13 @@ func NewOpenApi2Validator(openApi2SpecsBytes []byte) (*OpenApiValidator, error) 
 	}
 	*/
 
+	additionalPropertiesAllowed := false
+	for _, schema := range swagger3.Components.Schemas {
+		if schema.Value.AdditionalPropertiesAllowed == nil {
+			schema.Value.AdditionalPropertiesAllowed = &additionalPropertiesAllowed
+		}
+	}
+
 	// build schemaCache:
 	schemaCache, err := buildSchemaCache(swagger3)
 

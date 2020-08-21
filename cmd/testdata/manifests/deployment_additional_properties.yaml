@@ -1,0 +1,32 @@
+---
+# ConfigMap allows additional properties
+kind: ConfigMap
+metadata:
+  name: test
+  namespace: default
+
+apiVersion: v1
+data:
+  akey: avalue
+  anotherkey: anothervalue
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: some-app-envoy
+  namespace: example
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: some-app-envoy
+  template:
+    metadata:
+      labels:
+        app: some-app-envoy
+    spec:
+      # test an unexpected property
+      unexpectedAdditionalProperty: 0
+      containers:
+      - image: envoyproxy/envoy:v1.13.1
+        name: envoy
