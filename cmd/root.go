@@ -136,7 +136,9 @@ func containsSeverity(results []validate.ValidationResult, strict bool) bool {
 		case validate.SeverityError:
 			return true
 		case validate.SeverityWarning:
-			return strict
+			if strict {
+				return true
+			}
 		}
 	}
 	return false
