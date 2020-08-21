@@ -134,6 +134,32 @@ func TestValidate(t *testing.T) {
 			},
 		},
 		{
+			name:             "test unknown crd then invalid yaml",
+			filenames:        []string{"testdata/manifests/unknown_kind.yaml", "testdata/manifests/invalid_yaml.yaml"},
+			schema:           "testdata/schemas/k8s-1.17.0.json",
+			crds:             []string{},
+			expectedExitCode: 1,
+			recursive:        false,
+			strict:			  false,
+			expectedResults: []validate.ValidationResult{
+				{"Kind 'example.io/v1/UnknownCRD' not found in schema", validate.SeverityWarning, "example-unknown-kind", "example", "example.io/v1/UnknownCRD"},
+				{"Error parsing k8s resource from document 0: error converting YAML to JSON: yaml: line 3: mapping values are not allowed in this context\n", validate.SeverityError, "", "", ""},
+			},
+		},
+		{
+			name:             "test unknown crd then invalid yaml strict",
+			filenames:        []string{"testdata/manifests/unknown_kind.yaml", "testdata/manifests/invalid_yaml.yaml"},
+			schema:           "testdata/schemas/k8s-1.17.0.json",
+			crds:             []string{},
+			expectedExitCode: 1,
+			recursive:        false,
+			strict:			  true,
+			expectedResults: []validate.ValidationResult{
+				{"Kind 'example.io/v1/UnknownCRD' not found in schema", validate.SeverityWarning, "example-unknown-kind", "example", "example.io/v1/UnknownCRD"},
+				{"Error parsing k8s resource from document 0: error converting YAML to JSON: yaml: line 3: mapping values are not allowed in this context\n", validate.SeverityError, "", "", ""},
+			},
+		},
+		{
 			name:             "test schema with invalid json",
 			filenames:        []string{"testdata/manifests"},
 			schema:           "testdata/schemas/invalid-json.json",
