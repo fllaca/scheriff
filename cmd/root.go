@@ -23,7 +23,7 @@ var (
 
 Schema Sheriff performs offline validation of Kubernetes configuration manifests by checking them against OpenApi schemas. No connectivity to the Kubernetes cluster is needed`,
 		Run: func(cmd *cobra.Command, args []string) {
-			exitCode, _ := runValidate(filenames, openApiSchema, crds, recursive)
+			exitCode, _ := runValidate(filenames, openApiSchema, crds, recursive, strict)
 			os.Exit(exitCode)
 		},
 	}
@@ -31,6 +31,7 @@ Schema Sheriff performs offline validation of Kubernetes configuration manifests
 	crds          = make([]string, 0)
 	openApiSchema = ""
 	recursive     = false
+	strict        = false
 )
 
 func init() {
@@ -39,6 +40,7 @@ func init() {
 	rootCmd.PersistentFlags().StringVarP(&openApiSchema, "schema", "s", "", "(required) Kubernetes OpenAPI V2 schema to validate against")
 	rootCmd.PersistentFlags().BoolVarP(&recursive, "recursive", "R", false, "process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.")
 	rootCmd.PersistentFlags().StringArrayVarP(&crds, "crd", "c", []string{}, "files or directories that contain CustomResourceDefinitions to be used for validation")
+	rootCmd.PersistentFlags().BoolVarP(&strict, "strict", "S", false, "return exit code 1 not only on errors but also when warnings are encountered.")
 	rootCmd.MarkPersistentFlagRequired("filename")
 	rootCmd.MarkPersistentFlagRequired("schema")
 }
@@ -49,7 +51,7 @@ func Execute(version, date, commit string) error {
 	return rootCmd.Execute()
 }
 
-func runValidate(filenames []string, schema string, crds []string, recursive bool) (int, []validate.ValidationResult) {
+func runValidate(filenames []string, schema string, crds []string, recursive bool, strict bool) (int, []validate.ValidationResult) {
 	totalResults := make([]validate.ValidationResult, 0)
 	fmt.Printf("Validating config in %s against schema in %s\n", utils.JoinNotEmptyStrings(", ", filenames...), openApiSchema)
 	exitCode := 0
@@ -106,7 +108,7 @@ func runValidate(filenames []string, schema string, crds []string, recursive boo
 
 			validationResults := fileValidator.Validate(fileBytes)
 			outputResult(validationResults)
-			if containsError(validationResults) {
+			if containsSeverity(validationResults, strict) {
 				exitCode = 1
 			}
 			totalResults = append(totalResults, validationResults...)
@@ -128,10 +130,15 @@ func outputResult(results []validate.ValidationResult) {
 	fmt.Println()
 }
 
-func containsError(results []validate.ValidationResult) bool {
+func containsSeverity(results []validate.ValidationResult, strict bool) bool {
 	for _, result := range results {
-		if result.Severity == validate.SeverityError {
+		switch result.Severity {
+		case validate.SeverityError:
 			return true
+		case validate.SeverityWarning:
+			if strict {
+				return true
+			}
 		}
 	}
 	return false
