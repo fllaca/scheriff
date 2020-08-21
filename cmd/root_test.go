@@ -313,6 +313,17 @@ func TestValidate(t *testing.T) {
 				{Message: "Error at \"/spec/template/spec\":Property 'unexpectedAdditionalProperty' is unsupported", Severity: "ERROR", Name: "some-app-envoy", Namespace: "example", Kind: "apps/v1/Deployment"},
 			},
 		},
+		{
+			name:             "test nullable properties",
+			filenames:        []string{"testdata/manifests/ns_nullable_field.yaml"},
+			schema:           "testdata/schemas/k8s-1.17.0.json",
+			crds:             []string{},
+			expectedExitCode: 0,
+			recursive:        false,
+			expectedResults: []validate.ValidationResult{
+				{Message: "valid", Severity: "OK", Name: "test", Namespace: "", Kind: "v1/Namespace"},
+			},
+		},
 	}
 
 	for _, test := range tests {

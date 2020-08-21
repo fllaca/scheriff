@@ -67,6 +67,14 @@ func NewOpenApi2Validator(openApi2SpecsBytes []byte) (*OpenApiValidator, error) 
 		if schema.Value.AdditionalPropertiesAllowed == nil {
 			schema.Value.AdditionalPropertiesAllowed = &additionalPropertiesAllowed
 		}
+		// Kubernetes accepts `null` for non-required properties
+		for propertyName, property := range schema.Value.Properties {
+			if utils.IndexOf(propertyName, schema.Value.Required...) >= 0 {
+				property.Value.Nullable = false
+			} else {
+				property.Value.Nullable = true
+			}
+		}
 	}
 
 	// build schemaCache:

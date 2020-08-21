@@ -11,3 +11,12 @@ func JoinNotEmptyStrings(sep string, elem ...string) string {
 	}
 	return strings.Join(tokens, sep)
 }
+
+func IndexOf(elem string, slice ...string) int {
+	for i, s := range slice {
+		if s == elem {
+			return i
+		}
+	}
+	return -1
+}
