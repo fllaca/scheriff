@@ -108,7 +108,7 @@ func runValidate(filenames []string, schema string, crds []string, recursive boo
 
 			validationResults := fileValidator.Validate(fileBytes)
 			outputResult(validationResults)
-			if containsSeverity(validationResults, validate.SeverityError) || (strict && containsSeverity(validationResults, validate.SeverityWarning)) {
+			if containsSeverity(validationResults, strict) {
 				exitCode = 1
 			}
 			totalResults = append(totalResults, validationResults...)
@@ -130,13 +130,16 @@ func outputResult(results []validate.ValidationResult) {
 	fmt.Println()
 }
 
-func containsSeverity(results []validate.ValidationResult, severity validate.Severity) bool {
+func containsSeverity(results []validate.ValidationResult, strict bool) bool {
 	for _, result := range results {
-		if result.Severity == severity {
-			return true
-		}
-	}
-	return false
+        switch result.Severity {
+        case validate.SeverityError:
+            return true
+        case validate.SeverityWarning:
+            return strict
+        }
+    }
+    return false
 }
 
 func colorSeverity(severity validate.Severity) string {
