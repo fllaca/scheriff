@@ -23,7 +23,7 @@ var (
 
 Schema Sheriff performs offline validation of Kubernetes configuration manifests by checking them against OpenApi schemas. No connectivity to the Kubernetes cluster is needed`,
 		Run: func(cmd *cobra.Command, args []string) {
-			exitCode, _ := runValidate(filenames, openApiSchema, crds, recursive)
+			exitCode, _ := runValidate(filenames, openApiSchema, crds, recursive, strict)
 			os.Exit(exitCode)
 		},
 	}
@@ -51,7 +51,7 @@ func Execute(version, date, commit string) error {
 	return rootCmd.Execute()
 }
 
-func runValidate(filenames []string, schema string, crds []string, recursive bool) (int, []validate.ValidationResult) {
+func runValidate(filenames []string, schema string, crds []string, recursive bool, strict bool) (int, []validate.ValidationResult) {
 	totalResults := make([]validate.ValidationResult, 0)
 	fmt.Printf("Validating config in %s against schema in %s\n", utils.JoinNotEmptyStrings(", ", filenames...), openApiSchema)
 	exitCode := 0

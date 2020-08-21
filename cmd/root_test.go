@@ -126,7 +126,7 @@ func TestValidate(t *testing.T) {
 			filenames:        []string{"testdata/manifests/unknown_kind.yaml"},
 			schema:           "testdata/schemas/k8s-1.17.0.json",
 			crds:             []string{},
-			expectedExitCode: 0,
+			expectedExitCode: 1,
 			recursive:        false,
 			strict:			  true,
 			expectedResults: []validate.ValidationResult{
@@ -305,7 +305,7 @@ func TestValidate(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			exitCode, results := runValidate(test.filenames, test.schema, test.crds, test.recursive)
+			exitCode, results := runValidate(test.filenames, test.schema, test.crds, test.recursive, test.strict)
 			assert.Equal(t, test.expectedExitCode, exitCode)
 			assert.Equal(t, test.expectedResults, results)
 		})
