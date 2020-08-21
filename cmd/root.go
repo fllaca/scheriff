@@ -132,14 +132,14 @@ func outputResult(results []validate.ValidationResult) {
 
 func containsSeverity(results []validate.ValidationResult, strict bool) bool {
 	for _, result := range results {
-        switch result.Severity {
-        case validate.SeverityError:
-            return true
-        case validate.SeverityWarning:
-            return strict
-        }
-    }
-    return false
+		switch result.Severity {
+		case validate.SeverityError:
+			return true
+		case validate.SeverityWarning:
+			return strict
+		}
+	}
+	return false
 }
 
 func colorSeverity(severity validate.Severity) string {
