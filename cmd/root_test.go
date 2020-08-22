@@ -128,7 +128,7 @@ func TestValidate(t *testing.T) {
 			crds:             []string{},
 			expectedExitCode: 1,
 			recursive:        false,
-			strict:			  true,
+			strict:           true,
 			expectedResults: []validate.ValidationResult{
 				{"Kind 'example.io/v1/UnknownCRD' not found in schema", validate.SeverityWarning, "example-unknown-kind", "example", "example.io/v1/UnknownCRD"},
 			},
@@ -153,7 +153,7 @@ func TestValidate(t *testing.T) {
 			crds:             []string{},
 			expectedExitCode: 1,
 			recursive:        false,
-			strict:			  true,
+			strict:           true,
 			expectedResults: []validate.ValidationResult{
 				{"Kind 'example.io/v1/UnknownCRD' not found in schema", validate.SeverityWarning, "example-unknown-kind", "example", "example.io/v1/UnknownCRD"},
 				{"Error parsing k8s resource from document 0: error converting YAML to JSON: yaml: line 3: mapping values are not allowed in this context\n", validate.SeverityError, "", "", ""},
@@ -303,7 +303,7 @@ func TestValidate(t *testing.T) {
 		},
 		{
 			name:             "test additional properties",
-			filenames:        []string{"testdata/manifests/deployment_additional_properties.yaml"},
+			filenames:        []string{"testdata/manifests/deployment_additional_properties.yaml", "testdata/manifests/cm_managed_fields.yaml"},
 			schema:           "testdata/schemas/k8s-1.17.0.json",
 			crds:             []string{},
 			expectedExitCode: 1,
@@ -311,6 +311,7 @@ func TestValidate(t *testing.T) {
 			expectedResults: []validate.ValidationResult{
 				{Message: "valid", Severity: "OK", Name: "test", Namespace: "default", Kind: "v1/ConfigMap"},
 				{Message: "Error at \"/spec/template/spec\":Property 'unexpectedAdditionalProperty' is unsupported", Severity: "ERROR", Name: "some-app-envoy", Namespace: "example", Kind: "apps/v1/Deployment"},
+				{Message: "valid", Severity: "OK", Name: "test-cm", Namespace: "default", Kind: "v1/ConfigMap"},
 			},
 		},
 		{

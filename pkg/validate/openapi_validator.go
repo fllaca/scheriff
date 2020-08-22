@@ -85,7 +85,7 @@ func adaptSpecsToKubernetesValidation(swagger3 *openapi3.Swagger) {
 	additionalPropertiesAllowed := false
 	for _, schema := range swagger3.Components.Schemas {
 		// Kubernetes doesn't accept additional properties by default
-		if schema.Value.AdditionalPropertiesAllowed == nil {
+		if schema.Value.AdditionalPropertiesAllowed == nil && len(schema.Value.Properties) > 0 {
 			schema.Value.AdditionalPropertiesAllowed = &additionalPropertiesAllowed
 		}
 		// Kubernetes accepts `null` for non-required properties
