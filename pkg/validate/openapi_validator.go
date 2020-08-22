@@ -62,20 +62,8 @@ func NewOpenApi2Validator(openApi2SpecsBytes []byte) (*OpenApiValidator, error) 
 	}
 	*/
 
-	additionalPropertiesAllowed := false
-	for _, schema := range swagger3.Components.Schemas {
-		if schema.Value.AdditionalPropertiesAllowed == nil {
-			schema.Value.AdditionalPropertiesAllowed = &additionalPropertiesAllowed
-		}
-		// Kubernetes accepts `null` for non-required properties
-		for propertyName, property := range schema.Value.Properties {
-			if utils.IndexOf(propertyName, schema.Value.Required...) >= 0 {
-				property.Value.Nullable = false
-			} else {
-				property.Value.Nullable = true
-			}
-		}
-	}
+	// this is needed as Kubernetes performs validation not following strictly the OpenAPI specs
+	adaptSpecsToKubernetesValidation(swagger3)
 
 	// build schemaCache:
 	schemaCache, err := buildSchemaCache(swagger3)
@@ -87,6 +75,28 @@ func NewOpenApi2Validator(openApi2SpecsBytes []byte) (*OpenApiValidator, error) 
 	return &OpenApiValidator{
 		schemaCache: schemaCache,
 	}, nil
+}
+
+// adaptSpecsToKubernetesValidation adjusts the OpenAPI specifications to reflect the behaviour of Kubernetes when validating resources.
+// Kubernetes performs validation in a sligtly different way than the kin-openapi library used for validation:
+// * Kubernetes doesn't accept additional properties by default
+// * Kubernetes accepts null values for non-required fields, even when they are NOT specified as nullable in the specs.
+func adaptSpecsToKubernetesValidation(swagger3 *openapi3.Swagger) {
+	additionalPropertiesAllowed := false
+	for _, schema := range swagger3.Components.Schemas {
+		// Kubernetes doesn't accept additional properties by default
+		if schema.Value.AdditionalPropertiesAllowed == nil {
+			schema.Value.AdditionalPropertiesAllowed = &additionalPropertiesAllowed
+		}
+		// Kubernetes accepts `null` for non-required properties
+		for propertyName, property := range schema.Value.Properties {
+			property.Value.Nullable = isOptionalProperty(*schema.Value, propertyName)
+		}
+	}
+}
+
+func isOptionalProperty(schema openapi3.Schema, property string) bool {
+	return utils.StringSliceIndexOf(schema.Required, property) < 0
 }
 
 func (oeValidator OpenApiValidator) Validate(input map[string]interface{}) ValidationResult {
