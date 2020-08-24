@@ -325,6 +325,17 @@ func TestValidate(t *testing.T) {
 				{Message: "valid", Severity: "OK", Name: "test", Namespace: "", Kind: "v1/Namespace"},
 			},
 		},
+		{
+			name:             "test validating input files without yaml/yml extension",
+			filenames:        []string{"testdata/manifests/non_yaml_extension.txt"},
+			schema:           "testdata/schemas/k8s-1.17.0.json",
+			crds:             []string{},
+			expectedExitCode: 0,
+			recursive:        false,
+			expectedResults: []validate.ValidationResult{
+				{Message: "valid", Severity: "OK", Name: "test-cm", Namespace: "default", Kind: "v1/ConfigMap"},
+			},
+		},
 	}
 
 	for _, test := range tests {
