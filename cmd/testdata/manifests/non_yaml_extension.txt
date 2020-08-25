@@ -1,0 +1,10 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: test-cm
+  namespace: default
+  labels:
+    test-label: test
+data:
+  key: some value
