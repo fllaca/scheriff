@@ -25,7 +25,7 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-      - run: docker login -u="$QUAY_TOKEN" -p="$QUAY_TOKEN" quay.io
+      - run: docker login -u="$QUAY_USER" -p="$QUAY_TOKEN" quay.io
       - run: hack/parse-changelog.sh $CIRCLE_TAG CHANGELOG.md > /tmp/release_notes.txt
       - run: curl -sL https://git.io/goreleaser | bash -s -- --release-notes <(cat /tmp/release_notes.txt)
   release_dry:
