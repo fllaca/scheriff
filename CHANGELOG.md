@@ -14,8 +14,21 @@ Add changes in one of these sections:
 
 ## [Unreleased]
 
+## [v0.0.1-rc2] - 2020-08-25
+
+Added the ability for strict validation (don't accept warnings) and some fixes to match the Kubernetes behaviour when veriyfing `null` fields and additional properties.
+
+Thank you so much to @LeoVerto for his contributions and to @figuerascarlos for his thorough reviews! :heart:
+
+### Fixed
+
+- Fix nullable fields validation ([#13](https://github.com/fllaca/scheriff/pull/13))
+- Fix validating files without yaml extension (like when doing process substitution) ([#14](https://github.com/fllaca/scheriff/pull/14))
+- Fix false OK validations for configuration with additional properties ([#11](https://github.com/fllaca/scheriff/pull/11))
+
 ### Added
 
+- Added a `--strict` flag to make _scheriff_ fail when errors but also warnings are encountered ([#9](https://github.com/fllaca/scheriff/pull/9))
 - Published Docker image: [quay.io/fllaca/scheriff](https://quay.io/repository/fllaca/scheriff?tab=tags)
 
 ## [v0.0.1-rc1] - 2020-08-13
