@@ -3,7 +3,7 @@
 [![CircleCI](https://circleci.com/gh/fllaca/scheriff/tree/master.svg?style=svg)](https://circleci.com/gh/fllaca/scheriff/tree/master)
 [![codecov](https://codecov.io/gh/fllaca/scheriff/branch/master/graph/badge.svg)](https://codecov.io/gh/fllaca/scheriff)
 
-Yet another Kubernetes manifests validation tool.
+Yet another Kubernetes manifests validation tool. With Custom Resource Definitions (CRD) support!
 
 Schema Sheriff performs offline validation of Kubernetes configuration manifests by checking them against OpenApi schemas. No connectivity to the Kubernetes cluster is needed
 
@@ -27,9 +27,9 @@ Schema Sheriff performs offline validation of Kubernetes configuration manifests
 
 ## Rationale
 
-Kubernetes configuration can become complex and hard to maintain in medium-big projects: it can be easy to make silly syntax mistakes when writing the specs of a new resource, and the way to check the config is valid is usually deploying it or running `kubectl apply --dry-run`, which both require an actual K8s cluster to do so. This gets even more complicated when using Custom Resource Definitions (CRDs) or when wanting to validate against multiple K8s versions.
+Kubernetes configuration can become complex and hard to maintain in medium-big projects: it can be easy to make silly syntax mistakes when writing the specs of a new resource, and the way to check the config is valid is usually by deploying it or running `kubectl apply --dry-run`, which both require an actual K8s cluster to do so. This gets even more complicated when using Custom Resource Definitions (CRDs) or when wanting to validate against multiple K8s versions.
 
-_SchemaSheriff_ aims to tackle all this by validating your K8s configuration manifests against OpenAPI schemas, which can be easily downloaded from either the cluster itself or the public Kubernetes repository (see [Get the schemas](#get-the-schemas)). This validation can be performed 100% offline without needing a connection to any K8s cluster.
+_SchemaSheriff_ aims to tackle all this by validating your K8s configuration manifests against OpenAPI schemas, which can be easily downloaded from either the cluster itself or the public Kubernetes repository (see [Get the schemas](#get-the-schemas)). This validation can be performed 100% offline without needing a connection to any K8s cluster. _SchemaSheriff_ not only validates builtin K8s resources, but also Custom Resource Definitions -CRDs- if you provide their specs.
 
 ## Installation
 
