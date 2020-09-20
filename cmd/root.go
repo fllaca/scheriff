@@ -129,9 +129,6 @@ func runValidate(opts validateOptions) (int, []validate.ValidationResult) {
 
 			validationResults := fileValidator.Validate(fileBytes)
 			outputResult(validationResults)
-			if containsSeverity(validationResults, opts.strict) {
-				exitCode = 1
-			}
 			totalResults = append(totalResults, validationResults...)
 			return nil
 
