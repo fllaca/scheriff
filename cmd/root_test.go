@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"errors"
 	"io"
 	"os"
 	"testing"
@@ -8,6 +9,12 @@ import (
 	"github.com/fllaca/scheriff/pkg/validate"
 	"github.com/stretchr/testify/assert"
 )
+
+type errorReader struct{}
+
+func (errorReader errorReader) Read(p []byte) (int, error) {
+	return 0, errors.New("Read error")
+}
 
 func openFile(t *testing.T, filename string) io.Reader {
 	reader, err := os.Open(filename)
@@ -409,6 +416,18 @@ func TestValidate(t *testing.T) {
 			expectedResults: []validate.ValidationResult{
 				{Message: "valid", Severity: validate.SeverityOK, Name: "my-new-cron-object", Namespace: "", Kind: "stable.example.com/v1/CronTab"},
 			},
+		},
+		{
+			name: "test stdin error",
+			opts: validateOptions{
+				filenames:             []string{"-"},
+				openApiSchemaFilename: "testdata/schemas/k8s-1.17.0.json",
+				crds:                  []string{"testdata/crds/crontab_without_default_val.yaml"},
+				input:                 errorReader{},
+				recursive:             false,
+			},
+			expectedExitCode: 1,
+			expectedResults:  []validate.ValidationResult{},
 		},
 	}
 
