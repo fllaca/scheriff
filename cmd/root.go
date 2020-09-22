@@ -14,6 +14,14 @@ import (
 	"github.com/gookit/color"
 )
 
+type validateOptions struct {
+	filenames             []string
+	crds                  []string
+	openApiSchemaFilename string
+	recursive             bool
+	strict                bool
+}
+
 var (
 	Version = "development"
 	rootCmd = &cobra.Command{
@@ -23,24 +31,21 @@ var (
 
 Schema Sheriff performs offline validation of Kubernetes configuration manifests by checking them against OpenApi schemas. No connectivity to the Kubernetes cluster is needed`,
 		Run: func(cmd *cobra.Command, args []string) {
-			exitCode, _ := runValidate(filenames, openApiSchema, crds, recursive, strict)
+			exitCode, _ := runValidate(options)
 			os.Exit(exitCode)
 		},
 	}
-	filenames     = make([]string, 0)
-	crds          = make([]string, 0)
-	openApiSchema = ""
-	recursive     = false
-	strict        = false
+
+	options = validateOptions{}
 )
 
 func init() {
-	rootCmd.PersistentFlags().StringArrayVarP(&filenames, "filename", "f", []string{}, "(required) file or directories that contain the configuration to be validated")
+	rootCmd.PersistentFlags().StringArrayVarP(&options.filenames, "filename", "f", []string{}, "(required) file or directories that contain the configuration to be validated")
 	// TODO support OpenApi V3 input
-	rootCmd.PersistentFlags().StringVarP(&openApiSchema, "schema", "s", "", "(required) Kubernetes OpenAPI V2 schema to validate against")
-	rootCmd.PersistentFlags().BoolVarP(&recursive, "recursive", "R", false, "process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.")
-	rootCmd.PersistentFlags().StringArrayVarP(&crds, "crd", "c", []string{}, "files or directories that contain CustomResourceDefinitions to be used for validation")
-	rootCmd.PersistentFlags().BoolVarP(&strict, "strict", "S", false, "return exit code 1 not only on errors but also when warnings are encountered.")
+	rootCmd.PersistentFlags().StringVarP(&options.openApiSchemaFilename, "schema", "s", "", "(required) Kubernetes OpenAPI V2 schema to validate against")
+	rootCmd.PersistentFlags().BoolVarP(&options.recursive, "recursive", "R", false, "process the directory used in -f, --filename recursively. Useful when you want to manage related manifests organized within the same directory.")
+	rootCmd.PersistentFlags().StringArrayVarP(&options.crds, "crd", "c", []string{}, "files or directories that contain CustomResourceDefinitions to be used for validation")
+	rootCmd.PersistentFlags().BoolVarP(&options.strict, "strict", "S", false, "return exit code 1 not only on errors but also when warnings are encountered.")
 	rootCmd.MarkPersistentFlagRequired("filename")
 	rootCmd.MarkPersistentFlagRequired("schema")
 }
@@ -51,23 +56,23 @@ func Execute(version, date, commit string) error {
 	return rootCmd.Execute()
 }
 
-func runValidate(filenames []string, schema string, crds []string, recursive bool, strict bool) (int, []validate.ValidationResult) {
+func runValidate(opts validateOptions) (int, []validate.ValidationResult) {
 	totalResults := make([]validate.ValidationResult, 0)
-	fmt.Printf("Validating config in %s against schema in %s\n", utils.JoinNotEmptyStrings(", ", filenames...), openApiSchema)
+	fmt.Printf("Validating config in %s against schema in %s\n", utils.JoinNotEmptyStrings(", ", opts.filenames...), opts.openApiSchemaFilename)
 	exitCode := 0
 
-	opeanApi2SpecsBytes, err := ioutil.ReadFile(schema)
+	opeanApi2SpecsBytes, err := ioutil.ReadFile(opts.openApiSchemaFilename)
 	if err != nil {
-		fmt.Printf("Error loading specs from %s: %s\n", schema, err)
+		fmt.Printf("Error loading specs from %s: %s\n", opts.filenames, err)
 		return 1, totalResults
 	}
 	resourceValidator, err := validate.NewOpenApi2Validator(opeanApi2SpecsBytes)
 	if err != nil {
-		fmt.Printf("Error loading specs from %s: %s\n", openApiSchema, err)
+		fmt.Printf("Error loading specs from %s: %s\n", opts.openApiSchemaFilename, err)
 		return 1, totalResults
 	}
 
-	for _, crd := range crds {
+	for _, crd := range opts.crds {
 		err := fs.ApplyToPathWithFilter(crd, false, func(file string) error {
 			fmt.Printf("Using CustomResourceDefinitions from %s\n", file)
 			fileBytes, err := ioutil.ReadFile(file)
@@ -96,8 +101,8 @@ func runValidate(filenames []string, schema string, crds []string, recursive boo
 	fileValidator := validate.NewYamlFileValidator(resourceValidator)
 
 	fmt.Println("Results:")
-	for _, filename := range filenames {
-		err := fs.ApplyToPathWithFilter(filename, recursive, func(file string) error {
+	for _, filename := range opts.filenames {
+		err := fs.ApplyToPathWithFilter(filename, opts.recursive, func(file string) error {
 			fmt.Printf("Validating manifests in %s:\n", file)
 			fileBytes, err := ioutil.ReadFile(file)
 			if err != nil {
@@ -108,7 +113,7 @@ func runValidate(filenames []string, schema string, crds []string, recursive boo
 
 			validationResults := fileValidator.Validate(fileBytes)
 			outputResult(validationResults)
-			if containsSeverity(validationResults, strict) {
+			if containsSeverity(validationResults, opts.strict) {
 				exitCode = 1
 			}
 			totalResults = append(totalResults, validationResults...)
