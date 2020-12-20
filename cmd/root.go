@@ -2,6 +2,7 @@ package cmd
 
 import (
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 
@@ -20,6 +21,7 @@ type validateOptions struct {
 	openApiSchemaFilename string
 	recursive             bool
 	strict                bool
+	input                 io.Reader
 }
 
 var (
@@ -31,6 +33,7 @@ var (
 
 Schema Sheriff performs offline validation of Kubernetes configuration manifests by checking them against OpenApi schemas. No connectivity to the Kubernetes cluster is needed`,
 		Run: func(cmd *cobra.Command, args []string) {
+			options.input = cmd.InOrStdin()
 			exitCode, _ := runValidate(options)
 			os.Exit(exitCode)
 		},
@@ -102,6 +105,19 @@ func runValidate(opts validateOptions) (int, []validate.ValidationResult) {
 
 	fmt.Println("Results:")
 	for _, filename := range opts.filenames {
+		// case stdin:
+		if filename == "-" {
+			fileBytes, err := ioutil.ReadAll(opts.input)
+			if err != nil {
+				fmt.Printf("Error reading stdin: %s\n", err)
+				return 1, totalResults
+			}
+			validationResults := fileValidator.Validate(fileBytes)
+			outputResult(validationResults)
+			totalResults = append(totalResults, validationResults...)
+			continue
+		}
+
 		err := fs.ApplyToPathWithFilter(filename, opts.recursive, func(file string) error {
 			fmt.Printf("Validating manifests in %s:\n", file)
 			fileBytes, err := ioutil.ReadFile(file)
@@ -113,9 +129,6 @@ func runValidate(opts validateOptions) (int, []validate.ValidationResult) {
 
 			validationResults := fileValidator.Validate(fileBytes)
 			outputResult(validationResults)
-			if containsSeverity(validationResults, opts.strict) {
-				exitCode = 1
-			}
 			totalResults = append(totalResults, validationResults...)
 			return nil
 
@@ -124,6 +137,9 @@ func runValidate(opts validateOptions) (int, []validate.ValidationResult) {
 			fmt.Printf("Error while validating %s: %s\n", filename, err)
 			exitCode = 1
 		}
+	}
+	if containsSeverity(totalResults, opts.strict) {
+		exitCode = 1
 	}
 	return exitCode, totalResults
 }

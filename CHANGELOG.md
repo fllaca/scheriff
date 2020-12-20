@@ -14,6 +14,10 @@ Add changes in one of these sections:
 
 ## [Unreleased]
 
+### Added
+
+- Validation of standard input (stdin) by using "-" as filename. (ie: `cat test.yaml | scheriff -f -`)
+
 ## [v0.0.1-rc2] - 2020-08-25
 
 Added the ability for strict validation (don't accept warnings) and some fixes to match the Kubernetes behaviour when veriyfing `null` fields and additional properties.
